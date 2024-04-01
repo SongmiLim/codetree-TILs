@@ -45,7 +45,7 @@ void copy_tree(int y, int x, int copy_map[][MAX]) {
 		if (ny < 0 || nx < 0 || ny >= n || nx >= n)
 			continue;
 
-		if (map[ny][nx] == 0 && !trace_spray[ny][nx]) {
+		if (map[ny][nx] == 0 && trace_spray[ny][nx]==0) {
 			cnt++;
 			copy_list.push_back({ ny, nx });
 		}
@@ -79,6 +79,10 @@ int check_spray_pos(int y, int x, int k) {
 }
 
 void spray_tree(int y, int x) {
+	// 나무가 없는 칸에 제초제를 뿌릴 경우
+	if (map[y][x] == 0)
+		return;
+
 	remove_tree_cnt += map[y][x];
 	map[y][x] = 0;
 	trace_spray[y][x] = -k - 1;
@@ -155,7 +159,7 @@ void game() {
 
 	for (int y = 0; y < n; y++) {
 		for (int x = 0; x < n; x++) {
-			if (!visited_spray[y][x] && map[y][x] > 0) {
+			if (!visited_spray[y][x] && map[y][x] >= 0) {
 				int cnt_tree = check_spray_pos(y, x, k);
 				visited_spray[y][x] = true;
 				if (max < cnt_tree) {
