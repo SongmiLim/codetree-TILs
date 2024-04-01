@@ -59,18 +59,21 @@ void copy_tree(int y, int x, int copy_map[][MAX]) {
 int check_spray_pos(int y, int x, int k) {
 	int sum = map[y][x];  // 제초제가 뿌려진 칸
 
-	for (int i = 1; i <= k; i++) {
 		for (int j = 0; j < 4; j++) {
-			int ny = y + cross_dy[j] * i;
-			int nx = x + cross_dx[j] * i;
+			for (int i = 1; i <= k; i++) {
+				int ny = y + cross_dy[j] * i;
+				int nx = x + cross_dx[j] * i;
 
-			if (ny < 0 || nx < 0 || ny >= n || nx >= n)
-				continue;
+				if (ny < 0 || nx < 0 || ny >= n || nx >= n)
+					continue;
 
-			if (map[ny][nx] > 0) {
-				sum += map[ny][nx];
+				if (map[ny][nx] == 0 || map[ny][nx] == 1)
+					break;
+
+				if (map[ny][nx] > 0) {
+					sum += map[ny][nx];
+				}
 			}
-		}
 	}
 	return sum;
 }
@@ -80,15 +83,25 @@ void spray_tree(int y, int x) {
 	map[y][x] = 0;
 	trace_spray[y][x] = -k - 1;
 
-	for (int i = 1; i <= k; i++) {
-		for (int j = 0; j < 4; j++) {
+	for (int j = 0; j < 4; j++) {
+		for (int i = 1; i <= k; i++) {
 			int ny = y + cross_dy[j] * i;
 			int nx = x + cross_dx[j] * i;
 
 			if (ny < 0 || nx < 0 || ny >= n || nx >= n)
 				continue;
 
-			if (map[ny][nx] >= 0) {
+			if (map[ny][nx] == -1) {  // 벽이 있는 경우
+				trace_spray[ny][nx] = -k - 1;
+				break;
+			}
+
+			if (map[ny][nx] == 0) {   // 나무가 없는 경우
+				trace_spray[ny][nx] = -k - 1;
+				break;
+			}
+
+			if (map[ny][nx] > 0) {
 				remove_tree_cnt += map[ny][nx];
 				map[ny][nx] = 0;
 				trace_spray[ny][nx] = -k - 1;
