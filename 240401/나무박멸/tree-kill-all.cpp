@@ -85,7 +85,7 @@ void spray_tree(int y, int x) {
 
 	remove_tree_cnt += map[y][x];
 	map[y][x] = 0;
-	trace_spray[y][x] = -k - 1;
+	trace_spray[y][x] = -c - 1;
 
 	for (int j = 0; j < 4; j++) {
 		for (int i = 1; i <= k; i++) {
@@ -96,19 +96,19 @@ void spray_tree(int y, int x) {
 				continue;
 
 			if (map[ny][nx] == -1) {  // 벽이 있는 경우
-				trace_spray[ny][nx] = -k - 1;
+				trace_spray[ny][nx] = -c - 1;
 				break;
 			}
 
 			if (map[ny][nx] == 0) {   // 나무가 없는 경우
-				trace_spray[ny][nx] = -k - 1;
+				trace_spray[ny][nx] = -c - 1;
 				break;
 			}
 
 			if (map[ny][nx] > 0) {
 				remove_tree_cnt += map[ny][nx];
 				map[ny][nx] = 0;
-				trace_spray[ny][nx] = -k - 1;
+				trace_spray[ny][nx] = -c - 1;
 			}
 		}
 	}
