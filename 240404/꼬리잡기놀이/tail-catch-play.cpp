@@ -140,7 +140,7 @@ void throw_ball(int round) {
 
 	else if (dir == 2) {
 		for (int i = n - 1; i >= 0; i--) {
-			int ny = pos;
+			int ny = n - 1 - pos;
 			int nx = i;
 
 			if (index_map[ny][nx] > 0) {
@@ -153,7 +153,7 @@ void throw_ball(int round) {
 	else if (dir == 3) {
 		for (int i = 0; i < n; i++) {
 			int ny = i;
-			int nx = pos;
+			int nx = n - 1 - pos;
 
 			if (index_map[ny][nx] > 0) {
 				hit_person(ny, nx);
