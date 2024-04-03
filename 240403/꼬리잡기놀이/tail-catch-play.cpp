@@ -14,8 +14,8 @@ struct Team {
 
 int n, m, k;
 int map[MAX][MAX];
-int line_map[MAX][MAX];
 int index_map[MAX][MAX];
+int line_map[MAX][MAX];
 int total_score = 0;
 int dy[4] = {-1, 1, 0, 0};
 int dx[4] = {0, 0, -1, 1};
@@ -103,15 +103,15 @@ void hit_person(int ny, int nx) {
 }
 
 void throw_ball(int round) {
-	int dir = (round / k) % 4;
-	int pos = round % k;
+	int dir = (round / n) % 4;
+	int pos = round % n;
 
 	if (dir == 0) {
 		for (int i = 0; i < n; i++) {
 			int ny = pos;
 			int nx = i;
 
-			if (map[ny][nx] != 4 && map[ny][nx] != 0) {
+			if (index_map[ny][nx]> 0) {
 				hit_person(ny, nx);
 				break;
 			}
@@ -123,7 +123,7 @@ void throw_ball(int round) {
 			int ny = i;
 			int nx = pos;
 
-			if (map[ny][nx] != 4 && map[ny][nx] != 0) {
+			if (index_map[ny][nx] > 0) {
 				hit_person(ny, nx);
 				break;
 			}
@@ -135,7 +135,7 @@ void throw_ball(int round) {
 			int ny = pos;
 			int nx = i;
 
-			if (map[ny][nx] != 4 && map[ny][nx] != 0) {
+			if (index_map[ny][nx] > 0) {
 				hit_person(ny, nx);
 				break;
 			}
@@ -147,7 +147,7 @@ void throw_ball(int round) {
 			int ny = i;
 			int nx = pos;
 
-			if (map[ny][nx] != 4 && map[ny][nx] != 0) {
+			if (index_map[ny][nx] > 0) {
 				hit_person(ny, nx);
 				break;
 			}
@@ -155,7 +155,7 @@ void throw_ball(int round) {
 	}
 }
 
-void index_person(int y, int x, bool visited[MAX][MAX]) {
+void index_person(int y, int x, vector<vector<bool>> visited) {
 	queue <pair<int, int>> q;
 	Team team;
 	int index = 1;
@@ -200,12 +200,17 @@ void game(int k){
 		}
 
 		// 사람 indexing
-		bool visited[MAX][MAX] = { false, };
+		vector<vector<bool>> visited(MAX, vector<bool>(MAX,false));
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				index_map[i][j] = 0;
+			}
+		}
+
 		for (int i = 0; i < n; i++) {
 			for (int j = 0; j < n; j++) {
 				if (!visited[i][j] && map[i][j] == 1) {
 					index_person(i, j, visited);
-					team_cnt++;
 				}
 			}
 		}
@@ -236,14 +241,13 @@ void build_team(int y, int x, bool visited[MAX][MAX]) {
 				continue;
 
 			if (!visited[ny][nx] && map[ny][nx] > 0) {
-				if (map[ny][nx] != 4) {
-					q.push({ ny, nx });
-					visited[ny][nx] = true;
-				}
-
 				if (map[y][x] == 3) {
 					team.tail.push_back({ y,x });
 				}
+
+				q.push({ ny, nx });
+				visited[ny][nx] = true;
+
 				line_map[ny][nx] = team_cnt;
 			}
 		}
