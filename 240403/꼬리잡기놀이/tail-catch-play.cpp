@@ -7,23 +7,26 @@ using namespace std;
 #define MAX 20
 
 struct Team {
+	int team_index;
 	vector<pair<int, int>> head;
 	vector<pair<int, int>> tail;
 };
 
 int n, m, k;
 int map[MAX][MAX];
-int team_index_map[MAX][MAX];
+int line_map[MAX][MAX];
+int index_map[MAX][MAX];
 int total_score = 0;
 int dy[4] = {-1, 1, 0, 0};
 int dx[4] = {0, 0, -1, 1};
 vector<Team> team_list;
 int team_cnt = 1;
 
-void move(Team &team) {
+void move(Team& team) {
 	int head_y = team.head.front().first;
 	int head_x = team.head.front().second;
 	bool head_flag = false;
+	
 	for (int i = 0; i < 4; i++) {
 		int ny = head_y + dy[i];
 		int nx = head_x + dx[i];
@@ -50,10 +53,14 @@ void move(Team &team) {
 				continue;
 
 			if (map[ny][nx] == 2) {
-				team.head.front().first = ny;
-				team.head.front().second = nx;
 				map[ny][nx] = 1;
 				map[head_y][head_x] = 3;
+				map[team.tail.front().first][team.tail.front().second] = 2;
+
+				team.head.front().first = ny;
+				team.head.front().second = nx;
+				team.tail.front().first = head_y;
+				team.tail.front().second = head_x;
 				return;
 			}
 		}
@@ -79,8 +86,21 @@ void move(Team &team) {
 	}
 }
 
-int dir_y[4] = { 0, -1,0, 1 };
+
+int dir_y[4] = { 0, -1, 0, 1 };
 int dir_x[4] = { 1, 0, -1, 0 };
+
+void hit_person(int ny, int nx) {
+	int team_num = line_map[ny][nx];
+	int head_y = team_list[team_num - 1].head.front().first;
+	int head_x = team_list[team_num - 1].head.front().second;
+	int tail_y = team_list[team_num - 1].tail.front().first;
+	int tail_x = team_list[team_num - 1].tail.front().second;
+
+	total_score += pow(index_map[ny][nx] - map[head_y][head_x] + 1, 2);
+	swap(team_list[team_num - 1].head, team_list[team_num - 1].tail);
+	swap(map[head_y][head_x], map[tail_y][tail_x]);
+}
 
 void throw_ball(int round) {
 	int dir = (round / k) % 4;
@@ -90,69 +110,104 @@ void throw_ball(int round) {
 		for (int i = 0; i < n; i++) {
 			int ny = pos;
 			int nx = i;
-			if (map[ny][nx] !=4 && map[ny][nx] != 0) {
-				int team_num = team_index_map[ny][nx];
-				int head_y = team_list[team_num -1].head.front().first;
-				int head_x = team_list[team_num-1].head.front().second;
-				int tail_y = team_list[team_num - 1].tail.front().first;
-				int tail_x = team_list[team_num - 1].tail.front().second;
-				total_score += pow(abs(ny - head_y) + abs(nx - head_x) + 1, 2);
-				swap(team_list[team_num - 1].head, team_list[team_num - 1].tail);
-				swap(map[head_y][head_x], map[tail_y][tail_x]);
+
+			if (map[ny][nx] != 4 && map[ny][nx] != 0) {
+				hit_person(ny, nx);
 				break;
 			}
 		}
 	}
+
 	else if (dir == 1) {
 		for (int i = n - 1; i >= 0; i--) {
 			int ny = i;
 			int nx = pos;
+
 			if (map[ny][nx] != 4 && map[ny][nx] != 0) {
-				int team_num = team_index_map[ny][nx];
-				int head_y = team_list[team_num - 1].head.front().first;
-				int head_x = team_list[team_num - 1].head.front().second;
-				total_score += pow(abs(ny - head_y) + abs(nx - head_x) + 1, 2);
-				swap(team_list[team_num - 1].head, team_list[team_num - 1].tail);
+				hit_person(ny, nx);
 				break;
 			}
 		}
 	}
+
 	else if (dir == 2) {
 		for (int i = n - 1; i >= 0; i--) {
 			int ny = pos;
 			int nx = i;
+
 			if (map[ny][nx] != 4 && map[ny][nx] != 0) {
-				int team_num = team_index_map[ny][nx];
-				int head_y = team_list[team_num - 1].head.front().first;
-				int head_x = team_list[team_num - 1].head.front().second;
-				total_score += pow(abs(ny - head_y) + abs(nx - head_x) + 1, 2);
-				swap(team_list[team_num - 1].head, team_list[team_num - 1].tail);
+				hit_person(ny, nx);
 				break;
 			}
 		}
 	}
+
 	else if (dir == 3) {
 		for (int i = 0; i < n; i++) {
 			int ny = i;
 			int nx = pos;
+
 			if (map[ny][nx] != 4 && map[ny][nx] != 0) {
-				int team_num = team_index_map[ny][nx];
-				int head_y = team_list[team_num - 1].head.front().first;
-				int head_x = team_list[team_num - 1].head.front().second;
-				total_score += pow(abs(ny - head_y) + abs(nx - head_x) + 1, 2);
-				swap(team_list[team_num - 1].head, team_list[team_num - 1].tail);
+				hit_person(ny, nx);
 				break;
 			}
 		}
 	}
 }
 
+void index_person(int y, int x, bool visited[MAX][MAX]) {
+	queue <pair<int, int>> q;
+	Team team;
+	int index = 1;
+	q.push({ y, x });
+	visited[y][x] = true;
+
+	index_map[y][x] = index;
+	index++;
+
+	while (!q.empty()) {
+		int y = q.front().first;
+		int x = q.front().second;
+		q.pop();
+
+		for (int i = 0; i < 4; i++) {
+			int ny = y + dy[i];
+			int nx = x + dx[i];
+
+			if (ny < 0 || nx < 0 || ny >= n || nx >= n)
+				continue;
+
+			if (!visited[ny][nx] && map[ny][nx] > 0) {
+				if (map[ny][nx] != 4) {
+					q.push({ ny, nx });
+					visited[ny][nx] = true;
+					index_map[ny][nx] = index;
+					index++;
+				}
+			}
+		}
+	}
+}
+
+
 void game(int k){
 	
 	for (int i = 0; i < k; i++) {
+		
 		// 한칸 움직이기
 		for (auto& team : team_list) {
 			move(team);
+		}
+
+		// 사람 indexing
+		bool visited[MAX][MAX] = { false, };
+		for (int i = 0; i < n; i++) {
+			for (int j = 0; j < n; j++) {
+				if (!visited[i][j] && map[i][j] == 1) {
+					index_person(i, j, visited);
+					team_cnt++;
+				}
+			}
 		}
 
 		// 공 던지기
@@ -163,23 +218,16 @@ void game(int k){
 void build_team(int y, int x, bool visited[MAX][MAX]) {
 	queue <pair<int, int>> q;
 	Team team;
-	
 	q.push({ y, x });
 	visited[y][x] = true;
+	team.head.push_back({ y,x });
+	line_map[y][x] = team_cnt;
+
 	while (!q.empty()) {
 		int y = q.front().first;
 		int x = q.front().second;
 		q.pop();
 
-		team_index_map[y][x] = team_cnt;
-		if (map[y][x] == 1) {
-			team.head.push_back({ y,x });
-		}
-		
-		if (map[y][x] == 3) {
-			team.tail.push_back({ y,x });
-		}
-		
 		for (int i = 0; i < 4; i++) {
 			int ny = y + dy[i];
 			int nx = x + dx[i];
@@ -188,8 +236,15 @@ void build_team(int y, int x, bool visited[MAX][MAX]) {
 				continue;
 
 			if (!visited[ny][nx] && map[ny][nx] > 0) {
-				q.push({ ny, nx });
-				visited[ny][nx] = true;
+				if (map[ny][nx] != 4) {
+					q.push({ ny, nx });
+					visited[ny][nx] = true;
+				}
+
+				if (map[y][x] == 3) {
+					team.tail.push_back({ y,x });
+				}
+				line_map[ny][nx] = team_cnt;
 			}
 		}
 	}
@@ -208,7 +263,7 @@ int main() {
 	bool visited[MAX][MAX] = { false, };
 	for (int i = 0; i < n; i++) {
 		for (int j = 0; j < n; j++) {
-			if (!visited[i][j] && map[i][j]>0) {
+			if (!visited[i][j] && map[i][j] == 1) {
 				build_team(i, j, visited);
 				team_cnt++;
 			}
