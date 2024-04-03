@@ -46,21 +46,33 @@ void move(Team& team) {
 
 	if (!head_flag) {    // 4가 없는 경우 => 1과 3이 붙어있음
 		for (int i = 0; i < 4; i++) {
-			int ny = head_y + dy[i];
-			int nx = head_x + dx[i];
+			int new_head_y = head_y + dy[i];
+			int new_head_x = head_x + dx[i];
 
-			if (ny < 0 || nx < 0 || ny >= n || nx >= n)
+			if (new_head_y < 0 || new_head_x < 0 || new_head_y >= n || new_head_x >= n)
 				continue;
 
-			if (map[ny][nx] == 2) {
-				map[ny][nx] = 1;
-				map[head_y][head_x] = 3;
-				map[team.tail.front().first][team.tail.front().second] = 2;
+			if (map[new_head_y][new_head_x] == 3) {
+				map[new_head_y][new_head_x] = 1;
+				team.head.front().first = new_head_y;
+				team.head.front().second = new_head_x;
 
-				team.head.front().first = ny;
-				team.head.front().second = nx;
-				team.tail.front().first = head_y;
-				team.tail.front().second = head_x;
+				for (int i = 0; i < 4; i++) {
+					int new_tail_y = new_head_y + dy[i];
+					int new_tail_x = new_head_x + dx[i];
+					
+					if (new_tail_y < 0 || new_tail_x < 0 || new_tail_y >= n || new_tail_x >= n)
+						continue;
+
+					if (map[new_tail_y][new_tail_x] == 2) {
+						map[new_tail_y][new_tail_x] = 3;
+						team.tail.front().first = new_tail_y;
+						team.tail.front().second = new_tail_x;
+						break;
+					}
+				}
+				map[head_y][head_x] = 2;
+
 				return;
 			}
 		}
@@ -244,8 +256,8 @@ void build_team(int y, int x, bool visited[MAX][MAX]) {
 				continue;
 
 			if (!visited[ny][nx] && map[ny][nx] > 0) {
-				if (map[y][x] == 3) {
-					team.tail.push_back({ y,x });
+				if (map[ny][nx] == 3) {
+					team.tail.push_back({ ny, nx });
 				}
 
 				q.push({ ny, nx });
