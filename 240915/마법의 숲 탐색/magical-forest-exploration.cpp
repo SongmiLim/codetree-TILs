@@ -24,8 +24,8 @@ struct Golam {
 };
 
 void Init() {
-    for (int i = 0; i < R + 3; i++) {
-        for (int j = 0; j < C; j++) {
+    for (int i = 0; i <= R + 3; i++) {
+        for (int j = 0; j <= C; j++) {
             golam_exist[i][j] = -1;
             map[i][j] = -1;
         }
@@ -33,7 +33,7 @@ void Init() {
 }
 
 bool CanGo(int y, int x) {
-    if (y >= R + 2 || y < 2 || x >= C - 1 || x < 1) {
+    if (y > R + 1 || y < 0 || x > C - 2 || x < 1) {
         return false;
     }
     if (golam_exist[y][x - 1] != -1 || golam_exist[y][x + 1] != -1 || golam_exist[y + 1][x] != -1) {
@@ -55,19 +55,21 @@ bool MoveGolam(Golam& golam) {
     }
 
     else if (CanGo(golam.y+1, golam.x - 1)) {
+        golam.y += 1;
         golam.x -= 1;
         golam.d = (golam.d + 3) % 4;
         MoveGolam(golam);
     }
 
     else if (CanGo(golam.y+1, golam.x + 1)) {
+        golam.y += 1;
         golam.x += 1;
         golam.d = (golam.d + 1) % 4;
         MoveGolam(golam);
     }
 
     else {
-        if (golam.y <= 3 || golam.x < 1 ||golam.y>=R+2 || golam.x>=C-1) {
+        if (golam.y < 3 || golam.x < 1 || golam.y>R+1 || golam.x>C-2) {
             Init();
             return false;
         }
@@ -83,8 +85,8 @@ bool MoveGolam(Golam& golam) {
 }
 
 int MoveFairy(Golam& golam) {
-    for (int i = 0; i < R + 3; i++) {
-        for (int j = 0; j < C; j++) {
+    for (int i = 0; i <= R + 3; i++) {
+        for (int j = 0; j <= C; j++) {
             fairy_visited[i][j] = false;
         }
     }
@@ -132,7 +134,6 @@ int Game(Golam &golam) {
         fairy_max_row = MoveFairy(golam);
     return fairy_max_row;
 }
-
 
  
 int main() {
