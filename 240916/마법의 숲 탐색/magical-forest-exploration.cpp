@@ -53,36 +53,39 @@ bool CanGo(int y, int x) {
 }
 
 bool MoveGolam(Golam& golam) {
-    if (CanGo(golam.y + 1, golam.x)) {
-        golam.y += 1;
-        MoveGolam(golam);
-    }
-
-    else if (CanGo(golam.y+1, golam.x - 1)) {
-        golam.y += 1;
-        golam.x -= 1;
-        golam.d = (golam.d + 3) % 4;
-        MoveGolam(golam);
-    }
-
-    else if (CanGo(golam.y+1, golam.x + 1)) {
-        golam.y += 1;
-        golam.x += 1;
-        golam.d = (golam.d + 1) % 4;
-        MoveGolam(golam);
-    }
-
-    else {
-        if (!InRange(golam.y-1, golam.x)|| !InRange(golam.y +1, golam.x)|| !InRange(golam.y , golam.x-1)|| !InRange(golam.y, golam.x+1)) {
-            Init();
-            return false;
+    while (true) {
+        if (CanGo(golam.y + 1, golam.x)) {
+            golam.y += 1;
+            //MoveGolam(golam);
         }
+
+        else if (CanGo(golam.y + 1, golam.x - 1)) {
+            golam.y += 1;
+            golam.x -= 1;
+            golam.d = (golam.d + 3) % 4;
+            //MoveGolam(golam);
+        }
+
+        else if (CanGo(golam.y + 1, golam.x + 1)) {
+            golam.y += 1;
+            golam.x += 1;
+            golam.d = (golam.d + 1) % 4;
+            //MoveGolam(golam);
+        }
+
         else {
-            golam_exist[golam.y + dy[golam.d]][golam.x + dx[golam.d]] = true; // 출구 표시
-            map[golam.y][golam.x] = golam.id;
-            for (int i = 0; i < 4; i++) {
-                map[golam.y + dy[i]][golam.x + dx[i]] = golam.id;
+            if (!InRange(golam.y - 1, golam.x) || !InRange(golam.y + 1, golam.x) || !InRange(golam.y, golam.x - 1) || !InRange(golam.y, golam.x + 1)) {
+                Init();
+                return false;
             }
+            else {
+                golam_exist[golam.y + dy[golam.d]][golam.x + dx[golam.d]] = true; // 출구 표시
+                map[golam.y][golam.x] = golam.id;
+                for (int i = 0; i < 4; i++) {
+                    map[golam.y + dy[i]][golam.x + dx[i]] = golam.id;
+                }
+            }
+            break;
         }
     }
     return true;
