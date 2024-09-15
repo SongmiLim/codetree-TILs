@@ -24,8 +24,8 @@ struct Golam {
 };
 
 void Init() {
-    for (int i = 0; i <= R + 3; i++) {
-        for (int j = 0; j <= C; j++) {
+    for (int i = 0; i < R + 3; i++) {
+        for (int j = 0; j < C; j++) {
             golam_exist[i][j] = -1;
             map[i][j] = -1;
         }
@@ -33,7 +33,7 @@ void Init() {
 }
 
 bool CanGo(int y, int x) {
-    if (y >= R + 2 || y < 0 || x >= C - 1 || x < 1) {
+    if (y >= R + 2 || y < 2 || x >= C - 1 || x < 1) {
         return false;
     }
     if (golam_exist[y][x - 1] != -1 || golam_exist[y][x + 1] != -1 || golam_exist[y + 1][x] != -1) {
@@ -67,7 +67,7 @@ bool MoveGolam(Golam& golam) {
     }
 
     else {
-        if (golam.y <= 2 || golam.x < 1 ||golam.y>=R+2 || golam.x>=C-1) {
+        if (golam.y <= 3 || golam.x < 1 ||golam.y>=R+2 || golam.x>=C-1) {
             Init();
             return false;
         }
