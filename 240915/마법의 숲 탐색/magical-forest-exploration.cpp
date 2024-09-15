@@ -24,8 +24,8 @@ struct Golam {
 };
 
 void Init() {
-    for (int i = 0; i < R + 3; i++) {
-        for (int j = 0; j < C; j++) {
+    for (int i = 0; i <= R + 3; i++) {
+        for (int j = 0; j <= C; j++) {
             golam_exist[i][j] = -1;
             map[i][j] = -1;
         }
@@ -134,7 +134,7 @@ int Game(Golam &golam) {
 }
 
 
-
+ 
 int main() {
     cin >> R >> C >> K;
     
