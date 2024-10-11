@@ -7,19 +7,19 @@ using namespace std;
 #define MAX_N 51
 #define MAX_P 31
 
-struct Position {
+struct Rudolf {
 	int x, y;
 };
 
 struct Santa {
-	Position pos;
+	int x, y;
 	int points;
 	bool is_alive;
 	int stun_until;
 };
 
 int n, m, p, c, d;
-Position rudolf;
+Rudolf rudolf;
 vector<Santa> santas(MAX_P);
 
 int board[MAX_N][MAX_N];
@@ -39,11 +39,11 @@ pair<int, pair<int, int>> find_closest_santa() {
 			continue;
 
 		pair<int, pair<int, int>> currentBest = { (closestX - rudolf.x) * (closestX - rudolf.x) + (closestY - rudolf.y) * (closestY - rudolf.y), {-closestX, -closestY} };
-		pair<int, pair<int, int>> currentValue = { (santas[i].pos.x - rudolf.x) * (santas[i].pos.x - rudolf.x) + (santas[i].pos.y - rudolf.y) * (santas[i].pos.y - rudolf.y), {-santas[i].pos.x, -santas[i].pos.y} };
+		pair<int, pair<int, int>> currentValue = { (santas[i].x - rudolf.x) * (santas[i].x - rudolf.x) + (santas[i].y - rudolf.y) * (santas[i].y - rudolf.y), {-santas[i].x, -santas[i].y} };
 
 		if (currentValue < currentBest) {
-			closestX = santas[i].pos.x;
-			closestY = santas[i].pos.y;
+			closestX = santas[i].x;
+			closestY = santas[i].y;
 			closestIdx = i;
 		}
 	}
@@ -55,7 +55,7 @@ void move_rudolf_towards_closest_santa(int closestIdx, int closestX, int closest
 	if (closestIdx == 0)
 		return;
 
-	Position prevRudolf = rudolf;
+	Rudolf prevRudolf = rudolf;
 	int moveX = (closestX > rudolf.x) - (closestX < rudolf.x);
 	int moveY = (closestY > rudolf.y) - (closestY < rudolf.y);
 
@@ -90,7 +90,7 @@ void move_rudolf_towards_closest_santa(int closestIdx, int closestX, int closest
 			}
 			else {
 				board[lastX][lastY] = board[beforeX][beforeY];
-				santas[idx].pos = { lastX, lastY };
+				santas[idx] = { lastX, lastY };
 			}
 
 			lastX = beforeX;
@@ -98,7 +98,9 @@ void move_rudolf_towards_closest_santa(int closestIdx, int closestX, int closest
 		}
 
 		santas[closestIdx].points += c;
-		santas[closestIdx].pos = { firstX, firstY };
+		santas[closestIdx].x = firstX;
+		santas[closestIdx].y = firstY;
+
 		if (is_inrange(firstX, firstY)) {
 			board[firstX][firstY] = closestIdx;
 		}
@@ -115,12 +117,12 @@ void move_santas(int t) {
 		if (!santas[i].is_alive || santas[i].stun_until >= t)
 			continue;
 
-		int minDist = (santas[i].pos.x - rudolf.x) * (santas[i].pos.x - rudolf.x) + (santas[i].pos.y - rudolf.y) * (santas[i].pos.y - rudolf.y);
+		int minDist = (santas[i].x - rudolf.x) * (santas[i].x - rudolf.x) + (santas[i].y - rudolf.y) * (santas[i].y - rudolf.y);
 		int moveDir = -1;
 
 		for (int dir = 0; dir < 4; dir++) {
-			int nx = santas[i].pos.x + dx[dir];
-			int ny = santas[i].pos.y + dy[dir];
+			int nx = santas[i].x + dx[dir];
+			int ny = santas[i].y + dy[dir];
 
 			if (!is_inrange(nx, ny) || board[nx][ny] > 0)
 				continue;
@@ -133,8 +135,8 @@ void move_santas(int t) {
 		}
 
 		if (moveDir != -1) {
-			int nx = santas[i].pos.x + dx[moveDir];
-			int ny = santas[i].pos.y + dy[moveDir];
+			int nx = santas[i].x + dx[moveDir];
+			int ny = santas[i].y + dy[moveDir];
 
 			if (nx == rudolf.x && ny == rudolf.y) {
 				santas[i].stun_until = t + 1;
@@ -170,7 +172,8 @@ void move_santas(int t) {
 						}
 						else {
 							board[lastX][lastY] = board[beforeX][beforeY];
-							santas[idx].pos = { lastX, lastY };
+							santas[idx].x = lastX;
+							santas[idx].y = lastY;
 						}
 
 						lastX = beforeX;
@@ -178,8 +181,9 @@ void move_santas(int t) {
 					}
 
 					santas[i].points += d;
-					board[santas[i].pos.x][santas[i].pos.y] = 0;
-					santas[i].pos = { firstX, firstY };
+					board[santas[i].x][santas[i].y] = 0;
+					santas[i].x = firstX;
+					santas[i].y = firstY;
 					if (is_inrange(firstX, firstY)) {
 						board[firstX][firstY] = i;
 					}
@@ -189,8 +193,9 @@ void move_santas(int t) {
 				}
 			}
 			else {
-				board[santas[i].pos.x][santas[i].pos.y] = 0;
-				santas[i].pos = { nx, ny };
+				board[santas[i].x][santas[i].y] = 0;
+				santas[i].x = nx;
+				santas[i].y = ny;
 				board[nx][ny] = i;
 			}
 		}
@@ -205,8 +210,8 @@ int main() {
 	for (int i = 1; i <= p; i++) {
 		int id = -1;
 		cin >> id;
-		cin >> santas[id].pos.x >> santas[id].pos.y;
-		board[santas[id].pos.x][santas[id].pos.y] = id;
+		cin >> santas[id].x >> santas[id].y;
+		board[santas[id].x][santas[id].y] = id;
 		santas[id].is_alive = true;
 		santas[id].points = 0;
 		santas[id].stun_until = 0;
