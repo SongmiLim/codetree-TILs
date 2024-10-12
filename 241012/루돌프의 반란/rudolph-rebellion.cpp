@@ -1,5 +1,7 @@
 #include <iostream>
 #include <cmath>
+#include <vector>
+#include <algorithm>
 
 using namespace std;
 
@@ -22,25 +24,28 @@ bool is_inrange(int x, int y) {
 	return 1 <= x && x <= n && 1 <= y && y <= n;
 }
 
-int FindClosestSanta() {
-	int closestX = 10000, closestY = 10000, closestIdx = 0;
+bool cmp(std::vector<int>& a, std::vector<int>& b) {
+	if (a[0] != b[0])
+		return a[0] < b[0];
+	else if (a[1] != b[1])
+		return a[1] > b[1];
+	else if (a[2] != b[2])
+		return a[2] > b[2];
+}
 
+int FindClosestSanta() {
+	std::vector<std::vector<int>>rudolf_santa_infos;
+	
 	for (int i = 1; i <= p; i++) {
 		if (!is_live[i])
 			continue;
-
-		pair<int, pair<int, int>> currentBest
-			= { static_cast<int>(pow(closestX - rudolf.first,2) + pow(closestY - rudolf.second,2)), {-closestX, -closestY} };
-		pair<int, pair<int, int>> currentValue
-			= { static_cast<int>(pow(santa[i].first - rudolf.first, 2) + pow(santa[i].second - rudolf.second, 2)), {-santa[i].first, -santa[i].second} };
-
-		if (currentValue < currentBest) {
-			closestX = santa[i].first;
-			closestY = santa[i].second;
-			closestIdx = i;
-		}
+		int distance = pow(rudolf.first - santa[i].first, 2) + pow(rudolf.second - santa[i].second, 2);
+		rudolf_santa_infos.push_back({ distance, santa[i].first, santa[i].second, i });
 	}
-	return closestIdx;
+
+	sort(rudolf_santa_infos.begin(), rudolf_santa_infos.end(), cmp);
+
+	return rudolf_santa_infos[0][3];
 }
 
 void MoveRudolf(int t) {
