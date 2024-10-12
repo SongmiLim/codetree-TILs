@@ -39,10 +39,13 @@ int FindClosestSanta() {
 	for (int i = 1; i <= p; i++) {
 		if (!is_live[i])
 			continue;
-		int distance = pow(rudolf.first - santa[i].first, 2) + pow(rudolf.second - santa[i].second, 2);
+		int distance = static_cast<int>(pow(rudolf.first - santa[i].first, 2) + pow(rudolf.second - santa[i].second, 2));
 		rudolf_santa_infos.push_back({ distance, santa[i].first, santa[i].second, i });
 	}
-
+	
+	if (rudolf_santa_infos.size() == 0)
+		return -1;
+	
 	sort(rudolf_santa_infos.begin(), rudolf_santa_infos.end(), cmp);
 
 	return rudolf_santa_infos[0][3];
@@ -53,7 +56,7 @@ void MoveRudolf(int t) {
 	int closestX = santa[closestIdx].first;
 	int closestY = santa[closestIdx].second;
 
-	if (closestIdx) {
+	if (closestIdx != -1) {
 		pair<int, int> prevRudolf = rudolf;
 		int moveX = 0;
 		if (closestX > rudolf.first)
@@ -122,6 +125,7 @@ void MoveRudolf(int t) {
 
 	board[rudolf.first][rudolf.second] = -1;
 }
+
 void MoveSantas(int t) {
 	// 각 산타들은 루돌프와 가장 가까운 방향으로 한칸 이동합니다.
 	for (int i = 1; i <= p; i++) {
